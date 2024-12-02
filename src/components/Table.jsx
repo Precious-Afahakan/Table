@@ -35,29 +35,31 @@ const Table = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const newFilteredData = data.filter((item) =>
-      Object.values(item).some((val) =>
-        String(val).toLowerCase().includes(searchValue.toLowerCase())
-      )
-    );
-    setFilteredData(newFilteredData);
-    setCurrentPage(1);
-  }, [searchValue, data]);
+  const filterData = () => {
+    let result = [...data];
 
-  const filterByDateRange = (data, fromDate, toDate) => {
-    return data.filter((item) => {
-      const itemDate = new Date(item.created_at);
-      return (
-        (!fromDate || itemDate >= fromDate) && (!toDate || itemDate <= toDate)
+    if (searchValue) {
+      result = result.filter((item) =>
+        Object.values(item).some((val) =>
+          String(val).toLowerCase().includes(searchValue.toLowerCase())
+        )
       );
-    });
+    }
+
+    if (fromDate || toDate) {
+      result = result.filter((item) => {
+        const itemDate = new Date(item.created_at);
+        return (
+          (!fromDate || itemDate >= fromDate) && (!toDate || itemDate <= toDate)
+        );
+      });
+    }
+
+    setFilteredData(result);
+    setCurrentPage(1);
   };
 
-  useEffect(() => {
-    const dateFilteredData = filterByDateRange(data, fromDate, toDate);
-    setFilteredData(dateFilteredData);
-  }, [fromDate, toDate, data]);
+  useEffect(filterData, [searchValue, fromDate, toDate, data]);
 
   const handleRowClick = (row) => {
     setClickedRow(row);
@@ -74,6 +76,14 @@ const Table = () => {
   const currentListItems = filteredData.slice(firstListIndex, lastListIndex);
 
   const pages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const handleToDateChange = (newToDate) => {
+    if (fromDate && newToDate < fromDate) {
+      alert("The 'To' date cannot be earlier than the 'From' date.");
+      return;
+    }
+    setToDate(date);
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -102,20 +112,21 @@ const Table = () => {
           To:
           <DatePicker
             selected={toDate}
-            onChange={(date) => setToDate(date)}
+            onChange={handleToDateChange}
             isClearable
             placeholderText="Select end date"
           />
         </label>
       </div>
+
       <table>
         <thead>
           <tr className="headers">
             <th>Id</th>
-            <th>Profile_picture</th>
+            <th>Profile Picture</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Created at</th>
+            <th>Created At</th>
           </tr>
         </thead>
         <tbody>
@@ -125,7 +136,7 @@ const Table = () => {
               <td>
                 <img src={item.profile_picture} alt="" />
               </td>
-              <td>{item.first_name + " " + item.last_name}</td>
+              <td>{`${item.first_name} ${item.last_name}`}</td>
               <td>{item.email}</td>
               <td>{item.created_at}</td>
             </tr>
@@ -136,7 +147,7 @@ const Table = () => {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button className="close-button" onClick={() => closeModal()}>
+            <button className="close-button" onClick={closeModal}>
               X
             </button>
             <h2>User Details</h2>
@@ -144,7 +155,7 @@ const Table = () => {
               <strong>ID:</strong> {clickedRow.id}
             </p>
             <p>
-              <strong>Name:</strong> {clickedRow.first_name}
+              <strong>Name:</strong> {clickedRow.first_name}{" "}
               {clickedRow.last_name}
             </p>
             <p>
@@ -164,6 +175,7 @@ const Table = () => {
         >
           Previous
         </button>
+        <span>{`Page ${currentPage} of ${pages}`}</span>
         <button
           onClick={() => setCurrentPage(currentPage + 1)}
           disabled={currentPage === pages}
