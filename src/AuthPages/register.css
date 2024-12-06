@@ -1,0 +1,35 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 97vh;
+  background: linear-gradient(180deg, gray, pink);
+  color: black;
+}
+
+.form_style {
+  width: 500px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 15px;
+  border: 5px solid black;
+}
+
+.input_style {
+  width: 320px;
+  height: 40px;
+  padding: 5px;
+  border-radius: 15px;
+  border: 4px solid black;
+}
+
+.button_style {
+  width: 220px;
+  height: 40px;
+  padding: 5px;
+  border-radius: 15px;
+  border: 3px solid black;
+}

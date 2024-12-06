@@ -37,7 +37,6 @@ const Table = () => {
 
   const filterData = () => {
     let result = [...data];
-
     if (searchValue) {
       result = result.filter((item) =>
         Object.values(item).some((val) =>
