@@ -10,6 +10,11 @@ const Login = ({ setIsAuthenticated }) => {
   });
   const [errors, setErrors] = useState({});
   const [userData, setUserData] = useState(null);
+  const [isPasswordHidden, setIsPassword] = useState(true);
+
+  const toggleVisibility = () => {
+    setIsPassword(!isPasswordHidden);
+  };
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("users"));
@@ -64,33 +69,37 @@ const Login = ({ setIsAuthenticated }) => {
   return (
     <div>
       <form onSubmit={handleSubmit} className="form_style">
-        <h1>Login!!!</h1>
+        <h1>Login</h1>
+        <div className="input-container">
+          <input
+            className="input_style"
+            type="email"
+            placeholder="Input your email..."
+            onChange={(e) => handleChange(e)}
+            name="email"
+            value={userInfo.email}
+          />
+          {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}
 
-        <input
-          className="input_style"
-          type="email"
-          placeholder="Input your email..."
-          onChange={(e) => handleChange(e)}
-          name="email"
-          value={userInfo.email}
-        />
-        {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}
-
-        <input
-          className="input_style"
-          type="password"
-          placeholder="Input your password..."
-          onChange={(e) => handleChange(e)}
-          name="password"
-          value={userInfo.password}
-        />
-        {errors.password && (
-          <span style={{ color: "red" }}>{errors.password}</span>
-        )}
-        <button className="button_style">Login</button>
-        <span>
-          Don't have an account? <Link to="/register">Register</Link>
-        </span>
+          <input
+            className="input_style"
+            type={isPasswordHidden ? "password" : "text"}
+            placeholder="Input your password..."
+            onChange={(e) => handleChange(e)}
+            name="password"
+            value={userInfo.password}
+          />
+          <span onClick={() => toggleVisibility()} className="toggle">
+            {isPasswordHidden ? "Show" : "Hide"}
+          </span>
+          {errors.password && (
+            <span style={{ color: "red" }}>{errors.password}</span>
+          )}
+          <button className="button_style">Login</button>
+          <span>
+            Don't have an account? <Link to="/register">Register</Link>
+          </span>
+        </div>
       </form>
     </div>
   );

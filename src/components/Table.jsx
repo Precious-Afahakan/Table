@@ -1,42 +1,31 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import "./Table.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
-const Table = () => {
-  const [data, setData] = useState([]);
+const Table = ({ fetchedData, setFetchedData }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [clickedRow, setClickedRow] = useState(null);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
   const itemsPerPage = 5;
-
+  const navigate = useNavigate();
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/mockData.json");
-        const fetchedData = response.data;
-        setData(fetchedData);
-        setFilteredData(fetchedData);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    if (fetchedData) {
+      setFilteredData(fetchedData);
+      setLoading(false);
+    } else {
+      setError("Failed to fetch data");
+    }
   }, []);
 
   const filterData = () => {
-    let result = [...data];
+    let result = [...fetchedData];
     if (searchValue) {
       result = result.filter((item) =>
         Object.values(item).some((val) =>
@@ -58,16 +47,22 @@ const Table = () => {
     setCurrentPage(1);
   };
 
-  useEffect(filterData, [searchValue, fromDate, toDate, data]);
+  useEffect(filterData, [searchValue, fromDate, toDate, fetchedData]);
 
   const handleRowClick = (row) => {
-    setClickedRow(row);
-    setIsModalOpen(true);
+    navigate(`/details/${row.id}`, { state: row });
+  };
+  const handleAddNew = () => {
+    navigate("/add");
+  };
+  const handleEdit = (row) => {
+    navigate(`/edit/${row.id}`);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setClickedRow(null);
+  const handleDelete = (id) => {
+    const updatedList = fetchedData.filter((item) => item.id !== id);
+    setFetchedData(updatedList);
+    setFilteredData(updatedList);
   };
 
   const lastListIndex = currentPage * itemsPerPage;
@@ -75,14 +70,6 @@ const Table = () => {
   const currentListItems = filteredData.slice(firstListIndex, lastListIndex);
 
   const pages = Math.ceil(filteredData.length / itemsPerPage);
-
-  const handleToDateChange = (newToDate) => {
-    if (fromDate && newToDate < fromDate) {
-      alert("The 'To' date cannot be earlier than the 'From' date.");
-      return;
-    }
-    setToDate(date);
-  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -111,11 +98,15 @@ const Table = () => {
           To:
           <DatePicker
             selected={toDate}
-            onChange={handleToDateChange}
+            onChange={(date) => setToDate(date)}
             isClearable
             placeholderText="Select end date"
+            disabled={!fromDate}
+            minDate={fromDate}
           />
         </label>
+
+        <button onClick={() => handleAddNew()}>Add new table data</button>
       </div>
 
       <table>
@@ -126,46 +117,29 @@ const Table = () => {
             <th>Name</th>
             <th>Email</th>
             <th>Created At</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {currentListItems.map((item) => (
-            <tr key={item.id} onClick={() => handleRowClick(item)}>
+            <tr key={item.id}>
               <td>{item.id}</td>
               <td>
-                <img src={item.profile_picture} alt="" />
+                <img src={item.profile_picture} alt="profile" />
               </td>
-              <td>{`${item.first_name} ${item.last_name}`}</td>
-              <td>{item.email}</td>
-              <td>{item.created_at}</td>
+              <td
+                onClick={() => handleRowClick(item)}
+              >{`${item.first_name} ${item.last_name}`}</td>
+              <td onClick={() => handleRowClick(item)}>{item.email}</td>
+              <td onClick={() => handleRowClick(item)}>{item.created_at}</td>
+              <td>
+                <button onClick={() => handleEdit(item)}>Edit</button>
+                <button onClick={() => handleDelete(item.id)}>Delete</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-button" onClick={closeModal}>
-              X
-            </button>
-            <h2>User Details</h2>
-            <p>
-              <strong>ID:</strong> {clickedRow.id}
-            </p>
-            <p>
-              <strong>Name:</strong> {clickedRow.first_name}{" "}
-              {clickedRow.last_name}
-            </p>
-            <p>
-              <strong>Email:</strong> {clickedRow.email}
-            </p>
-            <p>
-              <strong>Created At:</strong> {clickedRow.created_at}
-            </p>
-          </div>
-        </div>
-      )}
 
       <nav className="pagination">
         <button

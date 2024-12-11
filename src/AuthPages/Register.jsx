@@ -3,13 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./login.css";
 
-const Register = () => {
+const Register = ({ setIsAuthenticated }) => {
   const [userInfo, setUserInfo] = useState({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
   const [userData, setUserData] = useState(null);
+  const [isPasswordHidden, setIsPassword] = useState(true);
+
+  const toggleVisibility = () => {
+    setIsPassword(!isPasswordHidden);
+  };
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("users"));
@@ -58,38 +63,45 @@ const Register = () => {
         localStorage.setItem("users", JSON.stringify(newUsers));
       }
 
-      toast("Registration successful, now you can log in!!");
-      goTo("/login");
+      toast("Registration successful!!");
+      toast("Welcome home!!!");
+      setIsAuthenticated(true);
+      goTo("/home");
     }
   };
   return (
     <div>
       <form onSubmit={handleSubmit} className="form_style">
-        <h1>Register!!!</h1>
-        <input
-          className="input_style"
-          type="email"
-          placeholder="Input your email..."
-          onChange={(e) => handleChange(e)}
-          name="email"
-          value={userInfo.email}
-        />
-        {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}
-        <input
-          className="input_style"
-          type="password"
-          placeholder="Input your password..."
-          onChange={(e) => handleChange(e)}
-          name="password"
-          value={userInfo.password}
-        />
-        {errors.password && (
-          <span style={{ color: "red" }}>{errors.password}</span>
-        )}
-        <button className="button_style">Register</button>
-        <span>
-          Already registered? <Link to="/login">Login</Link>
-        </span>
+        <h1>Register</h1>
+        <div className="input-container">
+          <input
+            className="input_style"
+            type="email"
+            placeholder="Input your email..."
+            onChange={(e) => handleChange(e)}
+            name="email"
+            value={userInfo.email}
+          />
+          {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}
+          <input
+            className="input_style"
+            type={isPasswordHidden ? "password" : "text"}
+            placeholder="Input your password..."
+            onChange={(e) => handleChange(e)}
+            name="password"
+            value={userInfo.password}
+          />
+          <span onClick={() => toggleVisibility()} className="toggle">
+            {isPasswordHidden ? "Show" : "Hide"}
+          </span>
+          {errors.password && (
+            <span style={{ color: "red" }}>{errors.password}</span>
+          )}
+          <button className="button_style">Register</button>
+          <span>
+            Already registered? <Link to="/login">Login</Link>
+          </span>
+        </div>
       </form>
     </div>
   );
