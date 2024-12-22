@@ -6,9 +6,17 @@ const DetailsPage = () => {
     <div>
       <h1>{user.first_name}'s details</h1>
       <p>
+        <img
+          src={user.profile_picture}
+          alt=""
+          style={{ width: "100px", height: "100px", objectFit: "cover" }}
+        />
+      </p>
+      <p>
         <strong>ID:</strong>
         {user.id}
       </p>
+
       <p>
         <strong>First name:</strong>
         {user.first_name}

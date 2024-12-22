@@ -26,6 +26,7 @@ const Table = ({ fetchedData, setFetchedData }) => {
 
   const filterData = () => {
     let result = [...fetchedData];
+
     if (searchValue) {
       result = result.filter((item) =>
         Object.values(item).some((val) =>
@@ -125,7 +126,11 @@ const Table = ({ fetchedData, setFetchedData }) => {
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>
-                <img src={item.profile_picture} alt="profile" />
+                <img
+                  src={item.profile_picture}
+                  alt="profile"
+                  className="image"
+                />
               </td>
               <td
                 onClick={() => handleRowClick(item)}

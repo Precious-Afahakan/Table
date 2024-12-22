@@ -8,6 +8,7 @@ const EditDetails = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
     first_name: "",
     last_name: "",
     email: "",
+    profile_picture: "",
   });
 
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const EditDetails = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
+        profile_picture: user.profile_picture || "",
       });
     } else {
       console.error("User not found");
@@ -35,6 +37,18 @@ const EditDetails = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
     setIsAuthenticated(true);
     navigate("/home");
   };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInputVal({ ...inputVal, profile_picture: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div>
       <h1>Update/edit user data</h1>
@@ -58,6 +72,17 @@ const EditDetails = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
           value={inputVal.email}
           onChange={(e) => setInputVal({ ...inputVal, email: e.target.value })}
         />
+
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+
+        {inputVal.profile_picture && (
+          <img
+            src={inputVal.profile_picture}
+            alt="Profile Preview"
+            style={{ width: "100px", height: "100px", objectFit: "cover" }}
+          />
+        )}
+
         <button>Edit</button>
       </form>
     </div>

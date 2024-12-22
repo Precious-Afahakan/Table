@@ -10,6 +10,7 @@ const AddNew = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
     first_name: "",
     last_name: "",
     email: "",
+    profile_picture: null,
     created_at: new Date(),
   });
 
@@ -33,14 +34,25 @@ const AddNew = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
         created_at: formatDate(new Date()),
       };
 
-      const update = [...fetchedData, newData];
-
-      setFetchedData(update);
+      const updatedData = [...fetchedData, newData];
+      setFetchedData(updatedData);
+      //localStorage.setItem("fetchedData", JSON.stringify(updatedData));
       toast("Data added successfully");
       setIsAuthenticated(true);
       navigate("/home");
     } else {
       toast("Please fill in all fields!");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInputValue({ ...inputValue, profile_picture: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -71,6 +83,14 @@ const AddNew = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
             setInputValue({ ...inputValue, email: e.target.value })
           }
         />
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+        {inputValue.profile_picture && (
+          <img
+            src={inputValue.profile_picture}
+            alt="Profile Preview"
+            style={{ width: "100px", height: "100px", objectFit: "cover" }}
+          />
+        )}
         <button>Add new</button>
       </form>
     </div>
