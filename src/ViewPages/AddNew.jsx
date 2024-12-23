@@ -36,7 +36,6 @@ const AddNew = ({ fetchedData, setFetchedData, setIsAuthenticated }) => {
 
       const updatedData = [...fetchedData, newData];
       setFetchedData(updatedData);
-      //localStorage.setItem("fetchedData", JSON.stringify(updatedData));
       toast("Data added successfully");
       setIsAuthenticated(true);
       navigate("/home");

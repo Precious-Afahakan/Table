@@ -34,12 +34,6 @@ const App = () => {
     fetchTableData();
   }, []);
 
-  useEffect(() => {
-    if (fetchedData.length > 0) {
-      localStorage.setItem("fetchedData", JSON.stringify(fetchedData));
-    }
-  }, [fetchedData]);
-
   return (
     <>
       <BrowserRouter>
