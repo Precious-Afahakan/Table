@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import Table from "./components/Table";
 import Login from "./AuthPages/Login";
 import Register from "./AuthPages/Register";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import DetailsPage from "./ViewPages/DetailsPage";
 import "react-toastify/dist/ReactToastify.css";
+import DetailsPage from "./ViewPages/DetailsPage";
 import EditDetails from "./ViewPages/EditDetails";
 import NotFound from "./ViewPages/NotFound";
 import axios from "axios";
@@ -33,64 +37,51 @@ const App = () => {
     };
     fetchTableData();
   }, []);
+  const router = createBrowserRouter([
+    { path: "/", element: <Navigate to="/login" /> },
+    {
+      path: "/login",
+      element: <Login setIsAuthenticated={setIsAuthenticated} />,
+    },
+    { path: "/details/:id", element: <DetailsPage /> },
+    {
+      path: "/add",
+      element: (
+        <AddNew
+          fetchedData={fetchedData}
+          setFetchedData={setFetchedData}
+          setIsAuthenticated={setIsAuthenticated}
+        />
+      ),
+    },
+    {
+      path: "/edit/:id",
+      element: (
+        <EditDetails
+          setIsAuthenticated={setIsAuthenticated}
+          fetchedData={fetchedData}
+          setFetchedData={setFetchedData}
+        />
+      ),
+    },
+    {
+      path: "/register",
+      element: <Register setIsAuthenticated={setIsAuthenticated} />,
+    },
+    {
+      path: "/home",
+      element: isAuthenticated ? (
+        <Table fetchedData={fetchedData} setFetchedData={setFetchedData} />
+      ) : (
+        <Navigate to="/login" />
+      ),
+    },
+    { path: "*", element: <NotFound /> },
+  ]);
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-
-          <Route
-            path="/login"
-            element={<Login setIsAuthenticated={setIsAuthenticated} />}
-          />
-
-          <Route path="/details/:id" element={<DetailsPage />} />
-
-          <Route
-            path="/add"
-            element={
-              <AddNew
-                fetchedData={fetchedData}
-                setFetchedData={setFetchedData}
-                setIsAuthenticated={setIsAuthenticated}
-              />
-            }
-          />
-
-          <Route
-            path="/edit/:id"
-            element={
-              <EditDetails
-                setIsAuthenticated={setIsAuthenticated}
-                fetchedData={fetchedData}
-                setFetchedData={setFetchedData}
-              />
-            }
-          />
-
-          <Route
-            path="/register"
-            element={<Register setIsAuthenticated={setIsAuthenticated} />}
-          />
-
-          <Route
-            path="/home"
-            element={
-              isAuthenticated ? (
-                <Table
-                  fetchedData={fetchedData}
-                  setFetchedData={setFetchedData}
-                />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <RouterProvider router={router} />
       <ToastContainer />
     </>
   );
